@@ -4,7 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct Server server_constructor(int domain, int protocol, int service, u_long net_interface, int port, int backlog, void (*launch)(void))
+// https://bruinsslot.jp/post/simple-http-webserver-in-c/
+
+struct Server server_init(int domain, int protocol, int service, u_long net_interface, int port, int backlog, void (*launch)(void))
 {
      struct Server server;
 
@@ -15,19 +17,72 @@ struct Server server_constructor(int domain, int protocol, int service, u_long n
      server.port = port;
      server.backlog = backlog;
 
-     server.address.sin_family = domain;
-     // htons(value) - convert short integer from host byte order to TCP/IP network byte order
-     server.address.sin_port = htons(port);
-     // htonl(value) - convert long integer from host byte order to TCP/IP network byte order
-     server.address.sin_addr.s_addr = htonl(net_interface);
+     /* local address configuration */
 
-     server.socket = socket(domain, service, protocol);
+     // set communication domain
+     server.address.sin_family = server.domain;
+     // htons(value) - convert short integer from host byte order to TCP/IP network byte order
+     server.address.sin_port = htons(server.port);
+     // htonl(value) - convert long integer from host byte order to TCP/IP network byte order
+     server.address.sin_addr.s_addr = htonl(server.net_interface);
+
+     // create a server socket
+     server.socket = socket(server.domain, server.service, server.protocol);
+
+     if(server.socket == 0)
+     {
+          // print failed to connect error message
+          perror("Failed to connect socket\n");
+          exit(1);
+     }
+
+     // bind socket to the address - assign server address to the socket
+     int bind_status = bind(server.socket, (struct sockaddr *)&server.address, sizeof(server.address));
+
+     if(bind_status < 0)
+     {
+          perror("Failed to bind socket\n");
+          exit(1);
+     }
+
+     // listening for incoming connections
+     int listening_status = listen(server.socket, server.backlog);
+
+     if(listening_status < 0)
+     {
+          perror("Failed to listen to the connection\n");
+          exit(1);
+     }
+
+     server.launch = launch;
 
      return server;
 }
 
 
+
+void launch(struct Server *server)
+{
+     char buffer[30000];
+     printf("Waiting for connection...\n");
+
+     socklen_t addr_len = sizeof(server->address);
+     // accept incoming connection and create a new socket for the connection
+     int soc = accept(server->socket, (struct sockaddr *) &server->address, &addr_len);
+
+     if(soc < 0)
+     {
+          perror("Failed to accept the connection\n");
+          exit(1);
+     }
+
+     read(soc, buffer, 30000);
+     printf("buffer : %s\n", buffer);
+}
+
+
 int main()
 {
+     struct Server server = server_init(AF_INET, 0, SOCK_STREAM, INADDR_ANY, 8001, 50, launch);
      return 0;
 }

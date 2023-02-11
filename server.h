@@ -7,8 +7,10 @@
      #define HOST_OS "windows"
      #define _WIN32_WINNT 0x601
 #elif __linux__
+     #include <unistd.h>
      #include <sys/socket.h>
      #include <netinet/in.h>
+     #include <netinet/tcp.h>
      #include <arpa/inet.h>
      #define HOST_OS "linux"
 #endif
@@ -25,10 +27,16 @@ struct Server
      struct sockaddr_in address;
      int socket;
 
-     void (*launch)(void);
+     void (*launch)(struct Server *server);
 };
 
-struct Server server_constructor(int domain, int protocol, int service, u_long net_interface, int port, int backlog, void (*launch)(void));
+
+struct Client
+{
+
+}
+
+struct Server server_init(int domain, int protocol, int service, u_long net_interface, int port, int backlog, void (*launch)(void));
 
 
 
