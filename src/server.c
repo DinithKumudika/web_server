@@ -7,15 +7,16 @@
 
 // https://bruinsslot.jp/post/simple-http-webserver-in-c/
 
-struct Server server_init(int domain, int protocol, int service, u_long net_interface, int port, int backlog)
+Server server_init(int domain, int protocol, int service, unsigned long net_interface, int port, int backlog)
 {
      Server server;
 
      server.domain = domain;
-     server.protocol = protocol;
+     server.protocol = protocol; 
      server.service = service;
      server.net_interface = net_interface;
      server.port = port;
+     // maximum length of teh pending connections queue
      server.backlog = backlog;
 
      /* local address configuration */
@@ -30,14 +31,14 @@ struct Server server_init(int domain, int protocol, int service, u_long net_inte
      // create a server socket
      server.socket = socket(server.domain, server.service, server.protocol);
 
-     if (server.socket == 0)
+     if (server.socket < 0)
      {
           // print failed to connect error message
           perror("Failed to connect socket\n");
           exit(1);
      }
 
-     // bind socket to the address - assign server address to the socket
+     // bind ip address and port to the socket
      int bind_status = bind(server.socket, (struct sockaddr *)&server.address, sizeof(server.address));
 
      if (bind_status < 0)
@@ -58,16 +59,22 @@ struct Server server_init(int domain, int protocol, int service, u_long net_inte
      return server;
 }
 
+// launch the server and accept incoming connections and read from and write to connections
 void launch(Server *server)
 {
+     char buffer[30000];
+     int soc;
+     socklen_t addr_len = sizeof(server->address);
+
+     char *hello = "HTTP/1.1 200 OK\nContent-Length: 88\nContent-Type: text/html\nConnection: Closed\n\n
+          <html><body><h1>Testing ...</h1></body></html>";
+
      while (1)
      {
-          char buffer[30000];
           printf("Waiting for connection...\n");
-
-          socklen_t addr_len = sizeof(server->address);
+          
           // accept incoming connection and create a new socket for the connection
-          int soc = accept(server->socket, (struct sockaddr *)&server->address, &addr_len);
+          soc = accept(server->socket, (struct sockaddr *)&server->address, &addr_len);
 
           if (soc < 0)
           {
@@ -77,7 +84,8 @@ void launch(Server *server)
 
           read(soc, buffer, 30000);
           printf("buffer : %s\n", buffer);
-
+          
+          write(soc, hello, strlen(hello));
           close(soc);
      }
 }

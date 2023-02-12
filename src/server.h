@@ -20,7 +20,7 @@ typedef struct Server
      int domain;
      int protocol;
      int service;
-     u_long net_interface;
+     unsigned long net_interface;
      int port;
      int backlog;
 
@@ -28,4 +28,6 @@ typedef struct Server
      int socket;
 } Server;
 
-struct Server server_init(int domain, int protocol, int service, u_long net_interface, int port, int backlog);
+Server server_init(int domain, int protocol, int service, unsigned long net_interface, int port, int backlog);
+
+void launch(Server *server);
