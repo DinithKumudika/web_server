@@ -4,16 +4,16 @@
 #include "constants.h"
 #include "request.h"
 
-int get_request_method(char *buffer)
+int get_request_method(char *req_line)
 {
-     char retval[10] = {0};
-     sscanf(buffer, "%s ", retval);
+     char method[10] = {0};
+     sscanf(req_line, "%s ", method);
 
-     if(strcmp(retval, "GET") == 0)
+     if(strcmp(method, "GET") == 0)
      {
           return GET;
      }
-     else if(strcmp(retval, "POST") == 0)
+     else if(strcmp(method, "POST") == 0)
      {
           return POST;
      }
@@ -23,31 +23,46 @@ int get_request_method(char *buffer)
      }
 }
 
-char *get_request_uri(char *buffer)
+char *get_request_uri(char *req_line)
 {
-     char retval[100] = {0};
-     sscanf(buffer, "%s %s ", retval);
+     char temp[100] = {0};
+     sscanf(req_line, "%s %s ", temp);
 
-     char uri[] = retval[strlen(retval) -1];
+     char uri[] = temp[strlen(temp) -1];
 
      if(uri == "/")
      {
-          strcat(retval, "index.html");
+          strcat(temp, "index.html");
      }
      else if(uri == "/about")
      {
-          strcat(retval, "about.html");
+          strcat(temp, "about.html");
      }
      else if(uri == "/contact")
      {
-          strcat(retval, "contact.html");
+          strcat(temp, "contact.html");
      }
      else
      {
-          strcat(retval, "404.html");
+          strcat(temp, "404.html");
      }
 
-     char *target = strdup(retval);
+     return strdup(temp);
+}
 
-     return target;
+Request *get_request(int sock)
+{
+     Request *request;
+     int msg_len;
+     char buffer[REQUEST_SIZE];
+
+     msg_len = recv(sock, buffer, sizeof(buffer), 0);
+     printf("Bytes received: %d", msg_len);
+
+     request = malloc(sizeof(Request));
+     request->type = get_request_method(buffer);
+     request->uri = get_request_uri(buffer);
+     request->length = msg_len;
+
+     return request;
 }

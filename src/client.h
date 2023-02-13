@@ -15,19 +15,17 @@
      #define HOST_OS "linux"
 #endif
 
-typedef struct Server
+typedef struct Client
 {
      int domain;
      int protocol;
-     int socket_type;
-     unsigned long host_interface;
+     int service;
+     unsigned long net_interface;
      int port;
      int backlog;
 
      struct sockaddr_in address;
      int socket;
-} Server;
+} Client;
 
-Server server_init(int domain, int protocol, int socket_type, unsigned long host_interface, int port, int backlog);
-
-void launch(Server *server);
+void client_init(Server server);

@@ -1,8 +1,8 @@
 #define SERVER_ROOT "../www"
-#define DEFAULT_PORT 80
-#define HOST_OS_WIN "windows"
-#define HOST_OS_LINUX "linux"
+#define DEFAULT_PORT 8080
+#define BUFFER_SIZE 1024
 #define _WIN32_WINNT 0x601
+#define REQUEST_SIZE 4096
 
 enum {
      REQUEST_UNDEFINED,

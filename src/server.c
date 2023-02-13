@@ -1,23 +1,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
-#include "server.h"
 #include "constants.h"
+#include "server.h"
 
-// https://bruinsslot.jp/post/simple-http-webserver-in-c/
-
-Server server_init(int domain, int protocol, int service, unsigned long net_interface, int port, int backlog)
+Server server_init(int domain, int protocol, int socket_type, unsigned long host_interface, int port, int backlog)
 {
      Server server;
 
      server.domain = domain;
      server.protocol = protocol; 
-     server.service = service;
-     server.net_interface = net_interface;
+     server.socket_type = socket_type;
+     server.host_interface = host_interface;
      server.port = port;
-     // maximum length of teh pending connections queue
+
+     // number of the pending connections will be queued up to accept
      server.backlog = backlog;
+
+     // create a server socket
+     server.socket = socket(server.domain, server.socket_type, server.protocol);
+
+     if (server.socket < 0)
+     {
+          // print failed to connect error message
+          perror("Failed to create socket\n");
+          exit(1);
+     }
 
      /* local address configuration */
 
@@ -26,19 +36,9 @@ Server server_init(int domain, int protocol, int service, unsigned long net_inte
      // htons(value) - convert short integer from host byte order to TCP/IP network byte order
      server.address.sin_port = htons(server.port);
      // htonl(value) - convert long integer from host byte order to TCP/IP network byte order
-     server.address.sin_addr.s_addr = htonl(server.net_interface);
+     server.address.sin_addr.s_addr = htonl(server.host_interface);
 
-     // create a server socket
-     server.socket = socket(server.domain, server.service, server.protocol);
-
-     if (server.socket < 0)
-     {
-          // print failed to connect error message
-          perror("Failed to connect socket\n");
-          exit(1);
-     }
-
-     // bind ip address and port to the socket
+     // assign ip address to the socket
      int bind_status = bind(server.socket, (struct sockaddr *)&server.address, sizeof(server.address));
 
      if (bind_status < 0)
@@ -62,37 +62,38 @@ Server server_init(int domain, int protocol, int service, unsigned long net_inte
 // launch the server and accept incoming connections and read from and write to connections
 void launch(Server *server)
 {
-     char buffer[30000];
-     int soc;
+     char buffer[BUFFER_SIZE];
+     int sock;
      socklen_t addr_len = sizeof(server->address);
 
-     char *hello = "HTTP/1.1 200 OK\nContent-Length: 88\nContent-Type: text/html\nConnection: Closed\n\n
-          <html><body><h1>Testing ...</h1></body></html>";
+     char resp[] = "HTTP/1.0 200 OK\r\nServer: webserver-c\r\nContent-type: text/html\r\n\r\n<html>hello, world</html>\r\n";
 
      while (1)
      {
           printf("Waiting for connection...\n");
           
-          // accept incoming connection and create a new socket for the connection
-          soc = accept(server->socket, (struct sockaddr *)&server->address, &addr_len);
+          // accept a incoming connection and create a new connected socket for the connection
+          sock = accept(server->socket, (struct sockaddr *)&server->address, &addr_len);
 
-          if (soc < 0)
+          if (sock < 0)
           {
                perror("Failed to accept the connection\n");
-               exit(1);
+               continue;
           }
 
-          read(soc, buffer, 30000);
+          if(read(sock, buffer, BUFFER_SIZE)<0)
+          {
+               perror("Failed to read incoming request\n");
+               continue;
+          }
+          
           printf("buffer : %s\n", buffer);
           
-          write(soc, hello, strlen(hello));
-          close(soc);
+          if(write(sock, resp, strlen(resp)) < 0)
+          {
+               perror("Failed to write to request\n");
+               continue;
+          } 
+          close(sock);
      }
-}
-
-int main()
-{
-     Server server = server_init(AF_INET, 0, SOCK_STREAM, INADDR_ANY, DEFAULT_PORT, 50);
-     launch(&server);
-     return 0;
 }
