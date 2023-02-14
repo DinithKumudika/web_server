@@ -1,6 +1,5 @@
 #include "constants.h"
 #include "server.h"
-#include "request.h"
 
 // https://bruinsslot.jp/post/simple-http-webserver-in-c/ 
 // https://dev-notes.eu/2018/06/http-server-in-c/

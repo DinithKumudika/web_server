@@ -4,7 +4,9 @@
 #include <errno.h>
 
 #include "constants.h"
+#include "request.h"
 #include "server.h"
+
 
 Server server_init(int domain, int protocol, int socket_type, unsigned long host_interface, int port, int backlog)
 {
@@ -47,6 +49,8 @@ Server server_init(int domain, int protocol, int socket_type, unsigned long host
           exit(1);
      }
 
+     printf("Server started on port %d\n", DEFAULT_PORT);
+
      // listening for incoming connections
      int listening_status = listen(server.socket, server.backlog);
 
@@ -86,8 +90,13 @@ void launch(Server *server)
                perror("Failed to read incoming request\n");
                continue;
           }
+
+          //Request *request = get_request(sock);
+
+          //printf("method: %d\n", get_request_method(buffer));
+          //printf("uri: %s\n", get_request_uri(buffer));
           
-          printf("buffer : %s\n", buffer);
+          printf("buffer :%s\n", buffer);
           
           if(write(sock, resp, strlen(resp)) < 0)
           {

@@ -1,65 +1,68 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "constants.h"
 #include "request.h"
 
-int get_request_method(char *req_line)
+int get_request_method(char *buffer)
 {
-     char method[10] = {0};
-     sscanf(req_line, "%s ", method);
+     //char method[10];
+     //sscanf(buffer, "%s ", method);
+     char *method = strtok(buffer, " ");
 
      if(strcmp(method, "GET") == 0)
      {
-          return GET;
+          return REQUEST_METHOD_GET;
      }
      else if(strcmp(method, "POST") == 0)
      {
-          return POST;
+          return REQUEST_METHOD_POST;
      }
      else
      {
-          return REQUEST_UNDEFINED; 
+          return REQUEST_METHOD_UNDEFINED; 
      }
 }
 
-char *get_request_uri(char *req_line)
+char *get_request_uri(char *buffer)
 {
-     char temp[100] = {0};
-     sscanf(req_line, "%s %s ", temp);
+     char *uri;
+     //sscanf(buffer, "%s %s ", &temp, &temp);
+     char *ptr = strtok(buffer, " ");
+     char *temp = strtok(NULL, " ");
 
-     char uri[] = temp[strlen(temp) -1];
 
-     if(uri == "/")
+     if(strcmp(temp, "/") == 0)
      {
-          strcat(temp, "index.html");
+          strcat(uri, "index.html");
      }
-     else if(uri == "/about")
+     else if(strcmp(temp, "/about") == 0)
      {
-          strcat(temp, "about.html");
+          strcat(uri, "about.html");
      }
-     else if(uri == "/contact")
+     else if(strcmp(temp, "/about") == 0)
      {
-          strcat(temp, "contact.html");
+          strcat(uri, "contact.html");
      }
      else
      {
-          strcat(temp, "404.html");
+          strcat(uri, "404.html");
      }
 
-     return strdup(temp);
+     return uri;
 }
 
-Request *get_request(int sock)
+Request *get_request(int socket)
 {
      Request *request;
      int msg_len;
      char buffer[REQUEST_SIZE];
 
-     msg_len = recv(sock, buffer, sizeof(buffer), 0);
+     msg_len = recv(socket, buffer, sizeof(buffer), 0);
      printf("Bytes received: %d", msg_len);
 
-     request = malloc(sizeof(Request));
+     request = (Request *) malloc(sizeof(Request));
      request->type = get_request_method(buffer);
      request->uri = get_request_uri(buffer);
      request->length = msg_len;
