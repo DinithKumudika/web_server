@@ -85,24 +85,30 @@ void launch(Server *server)
                continue;
           }
 
-          if(read(sock, buffer, BUFFER_SIZE)<0)
+          memset(buffer, 0, BUFFER_SIZE);
+
+          int bytes_received = recv(sock, buffer, BUFFER_SIZE, 0);
+
+          if(bytes_received<0)
           {
                perror("Failed to read incoming request\n");
                continue;
           }
 
-          //Request *request = get_request(sock);
+          printf("Bytes received : %d", bytes_received);
+          printf("buffer : %s\n", buffer);
 
-          //printf("method: %d\n", get_request_method(buffer));
-          //printf("uri: %s\n", get_request_uri(buffer));
-          
-          printf("buffer :%s\n", buffer);
+          Request request = handle_http_request(sock, buffer);
+
+          printf("method : %d\n", request.type);
+          printf("domain : %s\n", request.file);
           
           if(write(sock, resp, strlen(resp)) < 0)
           {
                perror("Failed to write to request\n");
                continue;
-          } 
+          }
+
           close(sock);
      }
 }

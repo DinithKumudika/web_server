@@ -1,15 +1,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include "constants.h"
 #include "request.h"
 
-int get_request_method(char *buffer)
+int get_request_method(char method[10])
 {
-     //char method[10];
-     //sscanf(buffer, "%s ", method);
-     char *method = strtok(buffer, " ");
 
      if(strcmp(method, "GET") == 0)
      {
@@ -25,47 +23,44 @@ int get_request_method(char *buffer)
      }
 }
 
-char *get_request_uri(char *buffer)
+char *get_request_file(char uri[300])
 {
-     char *uri;
-     //sscanf(buffer, "%s %s ", &temp, &temp);
-     char *ptr = strtok(buffer, " ");
-     char *temp = strtok(NULL, " ");
-
-
-     if(strcmp(temp, "/") == 0)
+     char filename[300];
+     
+     if(strcmp(uri, "/") == 0)
      {
-          strcat(uri, "index.html");
+          strncpy(filename, "index.html", 100);
      }
-     else if(strcmp(temp, "/about") == 0)
+     else if(strcmp(uri, "/about") == 0)
      {
-          strcat(uri, "about.html");
+          strncpy(filename, "about.html", 100);
      }
-     else if(strcmp(temp, "/about") == 0)
+     else if(strcmp(uri, "/contact") == 0)
      {
-          strcat(uri, "contact.html");
+          strncpy(filename, "contact.html", 100);
      }
      else
      {
-          strcat(uri, "404.html");
+          strncpy(filename, "404.html", 100);
      }
 
-     return uri;
+     return filename;
 }
 
-Request *get_request(int socket)
+Request handle_http_request(int sock, char *buffer)
 {
-     Request *request;
-     int msg_len;
-     char buffer[REQUEST_SIZE];
+     char request_method[10];
+     char request_uri[300];
+     char request_protocol[128];
 
-     msg_len = recv(socket, buffer, sizeof(buffer), 0);
-     printf("Bytes received: %d", msg_len);
+     Request req;
 
-     request = (Request *) malloc(sizeof(Request));
-     request->type = get_request_method(buffer);
-     request->uri = get_request_uri(buffer);
-     request->length = msg_len;
+     sscanf(buffer, "%s %s %s", request_method, request_uri, request_protocol);
 
-     return request;
+     req.type = get_request_method(request_method);
+     req.file = get_request_file(request_uri);
+
+     // printf("request method: %d\n", req.type);
+
+     return req;
 }

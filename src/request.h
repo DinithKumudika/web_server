@@ -18,11 +18,12 @@
 typedef struct Request 
 {
      int type;
-     char *uri;
-     int length;
+     char *file;
 } Request;
 
-int get_request_method(char *buffer);
-char *get_request_uri(char *buffer);
-Request *get_request(int socket);
+int get_request_method(char method[10]);
+char *get_request_file(char uri[300]);
+
+Request handle_http_request(int sock, char *buffer);
+
 
