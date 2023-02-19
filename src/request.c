@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include "constants.h"
-#include "request.h"
+#include "../include/constants.h"
+#include "../include/request.h"
 
 int get_request_method(char method[10])
 {

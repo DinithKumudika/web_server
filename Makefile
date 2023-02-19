@@ -1,7 +1,8 @@
 CC=gcc
-TARGET=dist/server
+SRCDIR=src
+TARGET=bin/server
 
 all:
-	$(CC) src/main.c src/server.c src/request.c src/response.c -o $(TARGET)
+	$(CC) $(SRCDIR)/main.c $(SRCDIR)/server.c $(SRCDIR)/request.c $(SRCDIR)/response.c -o $(TARGET)
 clean:
 	rm $(TARGET)

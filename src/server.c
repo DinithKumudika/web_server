@@ -3,10 +3,10 @@
 #include <string.h>
 #include <errno.h>
 
-#include "constants.h"
-#include "request.h"
-#include "response.h"
-#include "server.h"
+#include "../include/constants.h"
+#include "../include/request.h"
+#include "../include/response.h"
+#include "../include/server.h"
 
 
 Server server_init(int domain, int protocol, int socket_type, unsigned long host_interface, int port, int backlog)

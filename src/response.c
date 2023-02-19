@@ -2,8 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "constants.h"
-#include "response.h"
+#include "../include/constants.h"
+#include "../include/response.h"
 
 void serve_file(int sock, char *filename)
 {
