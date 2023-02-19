@@ -13,3 +13,5 @@ web server in written in C language for 2nd year of my university Networking cou
 https://bruinsslot.jp/post/simple-http-webserver-in-c/
 <br>
 https://www.jmarshall.com/easy/http/
+<br>
+https://www.geeksforgeeks.org/http-headers-content-type/
