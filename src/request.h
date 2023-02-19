@@ -22,7 +22,7 @@ typedef struct Request
 } Request;
 
 int get_request_method(char method[10]);
-char *get_request_file(char uri[300]);
+char *get_request_file(char uri[300], char filename[300]);
 
 Request handle_http_request(int sock, char *buffer);
 

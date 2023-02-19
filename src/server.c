@@ -5,6 +5,7 @@
 
 #include "constants.h"
 #include "request.h"
+#include "response.h"
 #include "server.h"
 
 
@@ -70,7 +71,7 @@ void launch(Server *server)
      int sock;
      socklen_t addr_len = sizeof(server->address);
 
-     char resp[] = "HTTP/1.0 200 OK\r\nServer: webserver-c\r\nContent-type: text/html\r\n\r\n<html>hello, world</html>\r\n";
+     // char resp[] = "HTTP/1.0 200 OK\r\nServer: webserver-c\r\nContent-type: text/html\r\n\r\n<html>hello, world</html>\r\n";
 
      while (1)
      {
@@ -101,13 +102,18 @@ void launch(Server *server)
           Request request = handle_http_request(sock, buffer);
 
           printf("method : %d\n", request.type);
-          printf("domain : %s\n", request.file);
+          printf("requested file : %s\n", request.file);
+
+
+          serve_file(sock, request.file);
+
+
           
-          if(write(sock, resp, strlen(resp)) < 0)
-          {
-               perror("Failed to write to request\n");
-               continue;
-          }
+          // if(write(sock, resp, strlen(resp)) < 0)
+          // {
+          //      perror("Failed to write to request\n");
+          //      continue;
+          // }
 
           close(sock);
      }
