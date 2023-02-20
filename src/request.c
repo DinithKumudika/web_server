@@ -8,7 +8,7 @@
 #include "../include/constants.h"
 #include "../include/request.h"
 
-char *strtolower(char *str)
+char *str_to_lower(char *str)
 {
      for(char *ptr = str; *ptr != '\0'; ptr++)
      {
@@ -58,6 +58,14 @@ char *get_request_file(char uri[300], char filename[300])
      {
           strcpy(filename, "sample.txt");
      }
+     else if(strcmp(uri, "/pikachu.gif") == 0)
+     {
+          strcpy(filename, "pikachu.gif");
+     }
+     else if(strcmp(uri, "/styles.css") == 0)
+     {
+          strcpy(filename, "styles.css");
+     }
      else
      {
           strcpy(filename, "404.html");
@@ -68,17 +76,30 @@ char *get_request_file(char uri[300], char filename[300])
 
 char *get_file_type(char *filename, char fileType[100])
 {
+     
      if(strstr(filename, ".html") != NULL)
      {
-          strncpy(fileType, "text/html", 100);
+          strcpy(fileType, "text/html");
      }
      else if(strstr(filename, ".jpeg") != NULL || strstr(filename, ".jpg") != NULL)
      {
-          strncpy(fileType, "image/jpg", 100);
+          strcpy(fileType, "image/jpg");
      }
      else if(strstr(filename, ".txt") != NULL)
      {
-          strncpy(fileType, "text/plain", 100);
+          strcpy(fileType, "text/plain");
+     }
+     else if(strstr(filename, ".gif") != NULL)
+     {
+          strcpy(fileType, "image/gif");
+     }
+     else if(strstr(filename, ".css") != NULL)
+     {
+          strcpy(fileType, "text/css");
+     }
+     else 
+     {
+          strcpy(fileType, "invalid");
      }
 
      return fileType;
