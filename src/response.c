@@ -1,33 +1,51 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include "../include/constants.h"
+#include "../include/request.h"
 #include "../include/response.h"
 
-void serve_file(int sock, char *filename)
+
+void serve_file(int sock, char *filename, char *fileType)
 {
     FILE *file;
-    char buffer[BUFFER_SIZE];
     int bytes;
+    char header[400];
+    char filepath[300];
+    char file_name[200];
+    char file_type[200];
+    char dir[] = "www/";
 
-    file = fopen(filename, "r");
+    strcpy(file_name, filename);
+    strcpy(filepath, dir);
+    strcat(filepath, file_name);
+
+    file = fopen(filepath, "r");
+
+
 
     if (file == NULL)
     {
-        sprintf(buffer, "HTTP/1.1 404 Not Found\r\n\r\n");
-        send(sock, buffer, strlen(buffer), 0);
+        file = fopen("www/404.html", "r");
     }
-    else
-    {
-        sprintf(buffer, "HTTP/1.1 200 OK\r\n\r\n");
-        send(sock, buffer, strlen(buffer), 0);
 
-        while ((bytes = fread(buffer, 1, BUFFER_SIZE, file)) > 0)
-        {
-            send(sock, buffer, bytes, 0);
-        }
+    // get file size
+    fseek(file, 0L, SEEK_END);
+    int file_size = ftell(file);
+    fseek(file, 0L, SEEK_SET);
+    char *ptr = malloc(file_size + 1);
+    
+    // read file
+    size_t size = fread(ptr,1,file_size,file);
+    ptr[size] = 0;
 
-        fclose(file);
-    }
+    fclose(file);
+    free(ptr);
+
+    strcpy(file_type, fileType);
+    sprintf(header,"HTTP/1.1 200 OK\nContent-Type: %s\r\n\r\n", file_type);
+    write(sock, header, strlen(header));
+    send(sock, ptr, file_size, 0);
 }

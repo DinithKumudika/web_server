@@ -15,4 +15,4 @@
      #define HOST_OS "linux"
 #endif
 
-void serve_file(int sock, char *filename);
+void serve_file(int sock, char *filename, char *fileType);

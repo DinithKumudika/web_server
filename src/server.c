@@ -96,24 +96,17 @@ void launch(Server *server)
                continue;
           }
 
-          printf("Bytes received : %d", bytes_received);
+          printf("Bytes received : %d\n", bytes_received);
           printf("buffer : %s\n", buffer);
 
           Request request = handle_http_request(sock, buffer);
 
           printf("method : %d\n", request.type);
           printf("requested file : %s\n", request.file);
+          printf("requested file type: %s\n", request.fileType);
 
 
-          serve_file(sock, request.file);
-
-
-          
-          // if(write(sock, resp, strlen(resp)) < 0)
-          // {
-          //      perror("Failed to write to request\n");
-          //      continue;
-          // }
+          serve_file(sock, request.file, request.fileType);
 
           close(sock);
      }
