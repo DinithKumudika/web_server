@@ -61,6 +61,8 @@ Server server_init(int domain, int protocol, int socket_type, unsigned long host
           exit(1);
      }
 
+     printf("Server is listening on port %d\n", DEFAULT_PORT);
+
      return server;
 }
 
@@ -71,7 +73,8 @@ void launch(Server *server)
      int sock;
      socklen_t addr_len = sizeof(server->address);
 
-     // char resp[] = "HTTP/1.0 200 OK\r\nServer: webserver-c\r\nContent-type: text/html\r\n\r\n<html>hello, world</html>\r\n";
+     pthread_t tid[60];
+     int i = 0;
 
      while (1)
      {
@@ -79,6 +82,13 @@ void launch(Server *server)
           
           // accept a incoming connection and create a new connected socket for the connection
           sock = accept(server->socket, (struct sockaddr *)&server->address, &addr_len);
+
+          // create a thread of every client request and assign client request to the process
+          int thread_status = pthread_create(&tif[i++], NULL, socket_thread, &sock);
+          if(thread_status < 0)
+          {
+               perror("Failed to create thread\n");
+          }
 
           if (sock < 0)
           {
