@@ -16,19 +16,30 @@ void serve_file(int sock, char *filename, char *fileType)
     char filepath[300];
     char file_name[200];
     char file_type[200];
-    char dir[] = "www/";
+    //char dir[] = "www/";
 
     strcpy(file_name, filename);
-    strcpy(filepath, dir);
+    strcpy(filepath, SERVER_ROOT);
     strcat(filepath, file_name);
+
+    strcpy(file_type, fileType);
 
     file = fopen(filepath, "r");
 
-
-
-    if (file == NULL)
+    if(strcmp(file_type, "invalid") == 0)
     {
+        sprintf(header,"HTTP/1.1 415 Unsupported Media Type\r\n\r\n");
+    }
+
+    if (file == NULL || strcmp(file_name, "404.html") == 0)
+    {
+        perror("File not found\n");
         file = fopen("www/404.html", "r");
+        sprintf(header,"HTTP/1.1 404 Not Found\nContent-Type: %s; charset=utf-8\r\n\r\n", file_type);
+    }
+    else 
+    {
+        sprintf(header,"HTTP/1.1 200 OK\nContent-Type: %s; charset=utf-8\r\n\r\n", file_type);
     }
 
     // get file size
@@ -44,8 +55,8 @@ void serve_file(int sock, char *filename, char *fileType)
     fclose(file);
     free(ptr);
 
-    strcpy(file_type, fileType);
-    sprintf(header,"HTTP/1.1 200 OK\nContent-Type: %s\r\n\r\n", file_type);
+    // set header
+    //sprintf(header,"HTTP/1.1 200 OK\nContent-Type: %s\r\n\r\n", file_type);
     write(sock, header, strlen(header));
     send(sock, ptr, file_size, 0);
 }
