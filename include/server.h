@@ -34,5 +34,4 @@ Server server_init(int domain, int protocol, int socket_type, unsigned long host
 
 void launch(Server *server);
 
-// TODO:implement socket_thread function
-void *socket_thread(void *arg);
+void* handle_connection(void* ptr_client_socket);

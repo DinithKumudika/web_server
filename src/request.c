@@ -7,16 +7,7 @@
 
 #include "../include/constants.h"
 #include "../include/request.h"
-
-char *str_to_lower(char *str)
-{
-     for(char *ptr = str; *ptr != '\0'; ptr++)
-     {
-          *ptr = tolower(*ptr);
-     }
-
-     return str;
-}
+#include "../include/utils.h"
 
 int get_request_method(char method[10])
 {
@@ -105,7 +96,7 @@ char *get_file_type(char *filename, char fileType[100])
      return fileType;
 }
 
-Request handle_http_request(int sock, char *buffer)
+Request handle_http_request(char *buffer)
 {
      char request_method[10];
      char request_uri[300];

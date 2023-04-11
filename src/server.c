@@ -8,13 +8,12 @@
 #include "../include/response.h"
 #include "../include/server.h"
 
-
 Server server_init(int domain, int protocol, int socket_type, unsigned long host_interface, int port, int backlog)
 {
      Server server;
 
      server.domain = domain;
-     server.protocol = protocol; 
+     server.protocol = protocol;
      server.socket_type = socket_type;
      server.host_interface = host_interface;
      server.port = port;
@@ -66,41 +65,15 @@ Server server_init(int domain, int protocol, int socket_type, unsigned long host
      return server;
 }
 
-// launch the server and accept incoming connections and read from and write to connections
-void launch(Server *server)
+void* handle_connection(void* ptr_client_socket)
 {
-     char buffer[BUFFER_SIZE];
-     int sock;
-     socklen_t addr_len = sizeof(server->address);
-
-     pthread_t tid[60];
-     int i = 0;
-
-     while (1)
-     {
-          printf("Waiting for connection...\n");
-          
-          // accept a incoming connection and create a new connected socket for the connection
-          sock = accept(server->socket, (struct sockaddr *)&server->address, &addr_len);
-
-          // create a thread of every client request and assign client request to the process
-          int thread_status = pthread_create(&tif[i++], NULL, socket_thread, &sock);
-          if(thread_status < 0)
-          {
-               perror("Failed to create thread\n");
-          }
-
-          if (sock < 0)
-          {
-               perror("Failed to accept the connection\n");
-               continue;
-          }
-
+          int client_socket = *((int *)ptr_client_socket);
+          free(ptr_client_socket);
           memset(buffer, 0, BUFFER_SIZE);
 
-          int bytes_received = recv(sock, buffer, BUFFER_SIZE, 0);
+          int bytes_received = recv(client_socket, buffer, BUFFER_SIZE, 0);
 
-          if(bytes_received<0)
+          if (bytes_received < 0)
           {
                perror("Failed to read incoming request\n");
                continue;
@@ -109,15 +82,49 @@ void launch(Server *server)
           printf("Bytes received : %d\n", bytes_received);
           printf("buffer : %s\n", buffer);
 
-          Request request = handle_http_request(sock, buffer);
+          Request request = handle_http_request(client_socket, buffer);
 
           printf("method : %d\n", request.type);
           printf("requested file : %s\n", request.file);
           printf("requested file type: %s\n", request.fileType);
 
+          serve_file(client_socket, request.file, request.fileType);
 
-          serve_file(sock, request.file, request.fileType);
+          close(client_socket);
+}
 
-          close(sock);
+// launch the server and accept incoming connections and read from and write to connections
+void launch(Server *server)
+{
+     char buffer[BUFFER_SIZE];
+     int sock;
+     socklen_t addr_len = sizeof(server->address);
+
+     while (1)
+     {
+          printf("Waiting for connection...\n");
+
+          // accept a incoming connection and create a new connected socket for the connection
+          sock = accept(server->socket, (struct sockaddr *)&server->address, &addr_len);
+
+          if (sock < 0)
+          {
+               perror("Failed to accept the connection\n");
+               continue;
+          }
+
+          // thread id
+          pthread_t tid;
+          int *ptr_sock = malloc(sizeof(int));
+          *ptr_sock = sock;
+
+          // create a thread of every client request and assign client request to the process
+          // NULL for default thread attributes
+          int thread_status = pthread_create(&tid, NULL, &handle_connection, ptr_sock);
+
+          if (thread_status < 0)
+          {
+               perror("Failed to create thread\n");
+          }
      }
 }

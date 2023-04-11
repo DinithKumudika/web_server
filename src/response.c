@@ -6,7 +6,7 @@
 #include "../include/constants.h"
 #include "../include/request.h"
 #include "../include/response.h"
-
+#include "../include/utils.h"
 
 void serve_file(int sock, char *filename, char *fileType)
 {
@@ -16,7 +16,7 @@ void serve_file(int sock, char *filename, char *fileType)
     char filepath[300];
     char file_name[200];
     char file_type[200];
-    //char dir[] = "www/";
+    // char dir[] = "www/";
 
     strcpy(file_name, filename);
     strcpy(filepath, SERVER_ROOT);
@@ -26,37 +26,34 @@ void serve_file(int sock, char *filename, char *fileType)
 
     file = fopen(filepath, "r");
 
-    if(strcmp(file_type, "invalid") == 0)
+    if (strcmp(file_type, "invalid") == 0)
     {
-        sprintf(header,"HTTP/1.1 415 Unsupported Media Type\r\n\r\n");
+        sprintf(header, "HTTP/1.1 415 Unsupported Media Type\r\n\r\n");
     }
 
+    // if file not found send 404 page as response and set http response status to 404 Not Found
     if (file == NULL || strcmp(file_name, "404.html") == 0)
     {
         perror("File not found\n");
         file = fopen("www/404.html", "r");
-        sprintf(header,"HTTP/1.1 404 Not Found\nContent-Type: %s; charset=utf-8\r\n\r\n", file_type);
+        sprintf(header, "HTTP/1.1 404 Not Found\nContent-Type: %s; charset=utf-8\r\n\r\n", file_type);
     }
-    else 
+    else
     {
-        sprintf(header,"HTTP/1.1 200 OK\nContent-Type: %s; charset=utf-8\r\n\r\n", file_type);
+        sprintf(header, "HTTP/1.1 200 OK\nContent-Type: %s; charset=utf-8\r\n\r\n", file_type);
     }
-
-    // get file size
-    fseek(file, 0L, SEEK_END);
-    int file_size = ftell(file);
+    
+    get_file_size(file);
     fseek(file, 0L, SEEK_SET);
     char *ptr = malloc(file_size + 1);
-    
+
     // read file
-    size_t size = fread(ptr,1,file_size,file);
+    size_t size = fread(ptr, 1, file_size, file);
     ptr[size] = 0;
 
     fclose(file);
     free(ptr);
 
-    // set header
-    //sprintf(header,"HTTP/1.1 200 OK\nContent-Type: %s\r\n\r\n", file_type);
     write(sock, header, strlen(header));
     send(sock, ptr, file_size, 0);
 }

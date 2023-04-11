@@ -14,11 +14,10 @@ typedef struct Request
      char *fileType;
 } Request;
 
-char *str_to_lower(char *str);
 int get_request_method(char method[10]);
 char *get_request_file(char uri[300], char filename[300]);
 char *get_file_type(char *filename, char fileType[100]);
 
-Request handle_http_request(int sock, char *buffer);
+Request handle_http_request(char *buffer);
 
 
