@@ -7,6 +7,22 @@
 #include "../include/request.h"
 #include "../include/response.h"
 #include "../include/server.h"
+#include "../include/utils.h"
+
+// thread id's in thread pool
+pthread_t t_pool[THREAD_POOL_SIZE];
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+// create a fixed no of threads to handle connections
+for (int i = 0; i < THREAD_POOL_SIZE; i++)
+{
+     thread_status = pthread_create(&t_pool[i], NULL, thread_func, NULL);
+
+     if (thread_status < 0)
+     {
+          perror("Failed to create thread %d\n", i + 1);
+     }
+}
 
 Server server_init(int domain, int protocol, int socket_type, unsigned long host_interface, int port, int backlog)
 {
@@ -65,32 +81,47 @@ Server server_init(int domain, int protocol, int socket_type, unsigned long host
      return server;
 }
 
-void* handle_connection(void* ptr_client_socket)
+void *thread_func(void *arg)
 {
-          int client_socket = *((int *)ptr_client_socket);
-          free(ptr_client_socket);
-          memset(buffer, 0, BUFFER_SIZE);
+     while (1)
+     {
+          pthread_mutex_lock(&mutex);
+          int *ptr_client_socket = dequeue();
+          pthread_mutex_unlock(&mutex);
 
-          int bytes_received = recv(client_socket, buffer, BUFFER_SIZE, 0);
-
-          if (bytes_received < 0)
+          if (ptr_client_socket != NULL)
           {
-               perror("Failed to read incoming request\n");
-               continue;
+               handle_connection(ptr_client_socket);
           }
+     }
+}
 
-          printf("Bytes received : %d\n", bytes_received);
-          printf("buffer : %s\n", buffer);
+void *handle_connection(void *ptr_client_socket)
+{
+     int client_socket = *((int *)ptr_client_socket);
+     free(ptr_client_socket);
+     memset(buffer, 0, BUFFER_SIZE);
 
-          Request request = handle_http_request(client_socket, buffer);
+     int bytes_received = recv(client_socket, buffer, BUFFER_SIZE, 0);
 
-          printf("method : %d\n", request.type);
-          printf("requested file : %s\n", request.file);
-          printf("requested file type: %s\n", request.fileType);
+     if (bytes_received < 0)
+     {
+          perror("Failed to read incoming request\n");
+          continue;
+     }
 
-          serve_file(client_socket, request.file, request.fileType);
+     printf("Bytes received : %d\n", bytes_received);
+     printf("buffer : %s\n", buffer);
 
-          close(client_socket);
+     Request request = handle_http_request(client_socket, buffer);
+
+     printf("method : %d\n", request.type);
+     printf("requested file : %s\n", request.file);
+     printf("requested file type: %s\n", request.fileType);
+
+     serve_file(client_socket, request.file, request.fileType);
+
+     close(client_socket);
 }
 
 // launch the server and accept incoming connections and read from and write to connections
@@ -113,18 +144,16 @@ void launch(Server *server)
                continue;
           }
 
-          // thread id
-          pthread_t tid;
           int *ptr_sock = malloc(sizeof(int));
           *ptr_sock = sock;
 
+          pthread_mutex_lock(&mutex);
+          // add client socket of current connection to the queue
+          enqueue(ptr_sock);
+          pthread_mutex_unlock(&mutex);
+
           // create a thread of every client request and assign client request to the process
           // NULL for default thread attributes
-          int thread_status = pthread_create(&tid, NULL, &handle_connection, ptr_sock);
-
-          if (thread_status < 0)
-          {
-               perror("Failed to create thread\n");
-          }
+          // int thread_status = pthread_create(&tid, NULL, &handle_connection, ptr_sock);
      }
 }
