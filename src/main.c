@@ -6,8 +6,6 @@
 #include "../include/constants.h"
 #include "../include/server.h"
 
-// https://bruinsslot.jp/post/simple-http-webserver-in-c/
-
 int main(int argc, char *argv[])
 {
      // get port to run the server through command line arguments

@@ -10,6 +10,7 @@
 #include "../include/server.h"
 #include "../include/queue.h"
 
+// initialize server and return server struct
 Server server_init(int domain, int protocol, int socket_type, unsigned long host_interface, int port, int backlog)
 {
      Server server;
@@ -67,6 +68,7 @@ Server server_init(int domain, int protocol, int socket_type, unsigned long host
      return server;
 }
 
+// thread function
 void *handle_socket_thread(void *arg)
 {
      while (1)
@@ -82,6 +84,7 @@ void *handle_socket_thread(void *arg)
      }
 }
 
+// handle a http connection from a client
 void *handle_connection(void *ptr_client_socket)
 {
      int client_socket = *((int *)ptr_client_socket);

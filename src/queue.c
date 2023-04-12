@@ -3,6 +3,7 @@
 
 #include "../include/queue.h"
 
+// enqueue a node to queue linked list
 void enqueue(queue *queue, void *data)
 {
      node *node = (node *)malloc(sizeof(*node));
@@ -20,6 +21,7 @@ void enqueue(queue *queue, void *data)
      queue->tail = node;
 }
 
+// dequeue node from the queue linked list
 void *dequeue(queue *queue)
 {
      if (queue->head)
