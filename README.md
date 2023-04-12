@@ -28,3 +28,5 @@ https://www.geeksforgeeks.org/http-headers-content-type/
 https://dzone.com/articles/parallel-tcpip-socket-server-with-multi-threading
 <br>
 https://www.geeksforgeeks.org/thread-functions-in-c-c/
+<br>
+https://stackoverflow.com/questions/34510/what-is-a-race-condition
