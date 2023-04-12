@@ -1,20 +1,20 @@
 #include <sys/types.h>
 
 #ifdef _WIN32
-#include <winsock2.h>
-#include <WS2tcpip.h>
-#include <WS2spi.h>
-#include <Windows.h>
-#define HOST_OS "windows"
+     #include <winsock2.h>
+     #include <WS2tcpip.h>
+     #include <WS2spi.h>
+     #include <Windows.h>
+     #define HOST_OS "windows"
 #elif __linux__
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
-#include <pthread.h>
-#include <semaphore.h>
-#define HOST_OS "linux"
+     #include <unistd.h>
+     #include <sys/socket.h>
+     #include <netinet/in.h>
+     #include <netinet/tcp.h>
+     #include <arpa/inet.h>
+     #include <pthread.h>
+     #include <semaphore.h>
+     #define HOST_OS "linux"
 #endif
 
 typedef struct Server
@@ -34,6 +34,6 @@ Server server_init(int domain, int protocol, int socket_type, unsigned long host
 
 void launch(Server *server);
 
-void *handle_socket_thread(void *arg);
+void* handle_socket_thread(void *arg);
 
-void handle_connection(int *ptr_client_socket);
+void handle_connection(int* ptr_client_socket);

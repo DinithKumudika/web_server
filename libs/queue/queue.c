@@ -1,42 +1,46 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../include/queue.h"
+#include "queue.h"
 
 // enqueue a node to queue linked list
 void enqueue(queue *queue, void *data)
 {
-     node *node = (node *)malloc(sizeof(*node));
-     node->data = data;
-     node->next = NULL;
+     node *new_node = (node *)malloc(sizeof(*node));
+     new_node->data = data;
+     new_node->next = NULL;
 
      if (queue->tail)
      {
-          queue->tail->next = node;
+          queue->tail->next = new_node;
      }
      else
      {
-          queue->head = node;
+          queue->head = new_node;
      }
-     queue->tail = node;
+     queue->tail = new_node;
 }
 
 // dequeue node from the queue linked list
+// returns the pointer to the data, return NULL if the queue is empty
 void *dequeue(queue *queue)
 {
      if (queue->head)
      {
-          node *node = queue->head;
+          void *data = head->data;
+          node *temp = queue->head;
           queue->head = queue->head->next;
 
           if (!queue->head)
           {
                queue->tail = NULL;
           }
-          void *data = node->data;
-          free(node);
+          
+          free(temp);
           return data;
      }
-
-     return NULL;
+     else
+     {
+          return NULL;
+     }
 }

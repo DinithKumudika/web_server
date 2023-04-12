@@ -6,6 +6,13 @@
 #include "../include/constants.h"
 #include "../include/server.h"
 
+// thread id's in thread pool
+pthread_t threads[THREAD_POOL_SIZE];
+
+// thread safety
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t condition = PTHREAD_COND_INITIALIZER;
+
 int main(int argc, char *argv[])
 {
      // get port to run the server through command line arguments

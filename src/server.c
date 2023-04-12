@@ -72,12 +72,15 @@ Server server_init(int domain, int protocol, int socket_type, unsigned long host
 // thread function
 void *handle_socket_thread(void *arg)
 {
+     // runs the thread on a infinite loop
      while (1)
      {
           pthread_mutex_lock(&mutex);
+          pthread_cond_wait(&condition, &mutex);
           int *ptr_client_socket = dequeue();
           pthread_mutex_unlock(&mutex);
 
+          // handle client connection if deque has returned a client socket
           if (ptr_client_socket != NULL)
           {
                handle_connection(ptr_client_socket);
@@ -86,7 +89,7 @@ void *handle_socket_thread(void *arg)
 }
 
 // handle a http connection from a client
-void handle_connection(int *ptr_client_socket)
+void handle_connection(int *ptr_client_socket) 
 {
      int client_socket = *(ptr_client_socket);
      free(ptr_client_socket);
@@ -125,12 +128,6 @@ void launch(Server *server)
      queue queue;
      memset(&queue, 0, sizeof(queue));
 
-     // thread id's in thread pool
-     pthread_t threads[THREAD_POOL_SIZE];
-
-     // prevent race condition
-     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
      // create a fixed no of threads to handle connections
      for (int i = 0; i < THREAD_POOL_SIZE; i++)
      {
@@ -159,8 +156,9 @@ void launch(Server *server)
           *ptr_sock = sock;
 
           pthread_mutex_lock(&mutex);
-          // add client socket of current connection to the queue
+          // add client socket of current connection to the queue so available threads can use them
           enqueue(&queue, ptr_sock);
+          pthread_cond_signal(&condition);
           pthread_mutex_unlock(&mutex);
      }
 
