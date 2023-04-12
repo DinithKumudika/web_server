@@ -8,7 +8,8 @@
 #include "../include/request.h"
 #include "../include/response.h"
 #include "../include/server.h"
-#include "../include/queue.h"
+
+#include "../libs/queue/queue.h"
 
 // initialize server and return server struct
 Server server_init(int domain, int protocol, int socket_type, unsigned long host_interface, int port, int backlog)
@@ -85,9 +86,9 @@ void *handle_socket_thread(void *arg)
 }
 
 // handle a http connection from a client
-void *handle_connection(void *ptr_client_socket)
+void handle_connection(int *ptr_client_socket)
 {
-     int client_socket = *((int *)ptr_client_socket);
+     int client_socket = *(ptr_client_socket);
      free(ptr_client_socket);
      memset(buffer, 0, BUFFER_SIZE);
 

@@ -1,5 +1,6 @@
 CC=gcc
 SRCDIR=src
+LIBDIR=libs
 TARGET=bin/server
 
 all:
