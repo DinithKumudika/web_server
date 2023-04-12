@@ -1,6 +1,18 @@
 # web_server
 simple web server with multi-threading written in C language for 2nd year of my university Networking course module. So far the web server can only handle GET requests from the clients and only works with linux operating system. hope to imporve this to works with windows operating system and POST, PUT, PATCH, DELETE http methods in future :)
 
+## Folder Structure
+
+```bash
+├───bin
+├───include
+├───libs
+│   ├───queue
+│   └───threadpool
+├───src
+├───tests
+└───www
+```
 
 ## Getting started
 
