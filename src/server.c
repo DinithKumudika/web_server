@@ -4,25 +4,11 @@
 #include <errno.h>
 
 #include "../include/constants.h"
+#include "../include/utils.h"
 #include "../include/request.h"
 #include "../include/response.h"
 #include "../include/server.h"
-#include "../include/utils.h"
-
-// thread id's in thread pool
-pthread_t t_pool[THREAD_POOL_SIZE];
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
-// create a fixed no of threads to handle connections
-for (int i = 0; i < THREAD_POOL_SIZE; i++)
-{
-     thread_status = pthread_create(&t_pool[i], NULL, thread_func, NULL);
-
-     if (thread_status < 0)
-     {
-          perror("Failed to create thread %d\n", i + 1);
-     }
-}
+#include "../include/queue.h"
 
 Server server_init(int domain, int protocol, int socket_type, unsigned long host_interface, int port, int backlog)
 {
@@ -81,7 +67,7 @@ Server server_init(int domain, int protocol, int socket_type, unsigned long host
      return server;
 }
 
-void *thread_func(void *arg)
+void *handle_socket_thread(void *arg)
 {
      while (1)
      {
@@ -131,6 +117,27 @@ void launch(Server *server)
      int sock;
      socklen_t addr_len = sizeof(server->address);
 
+     // create queue and allocate memory
+     queue queue;
+     memset(&queue, 0, sizeof(queue));
+
+     // thread id's in thread pool
+     pthread_t threads[THREAD_POOL_SIZE];
+
+     // prevent race condition
+     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+     // create a fixed no of threads to handle connections
+     for (int i = 0; i < THREAD_POOL_SIZE; i++)
+     {
+          thread_status = pthread_create(&threads[i], NULL, &handle_socket_thread, NULL);
+
+          if (thread_status < 0)
+          {
+               perror("Failed to create thread %d\n", i + 1);
+          }
+     }
+
      while (1)
      {
           printf("Waiting for connection...\n");
@@ -144,16 +151,16 @@ void launch(Server *server)
                continue;
           }
 
-          int *ptr_sock = malloc(sizeof(int));
+          int *ptr_sock = (int *)malloc(sizeof(int));
           *ptr_sock = sock;
 
           pthread_mutex_lock(&mutex);
           // add client socket of current connection to the queue
-          enqueue(ptr_sock);
+          enqueue(&queue, ptr_sock);
           pthread_mutex_unlock(&mutex);
-
-          // create a thread of every client request and assign client request to the process
-          // NULL for default thread attributes
-          // int thread_status = pthread_create(&tid, NULL, &handle_connection, ptr_sock);
      }
+
+     // shutdown socket connection
+     shutdown(server->socket, SD_BOTH);
+     close(server->socket);
 }
