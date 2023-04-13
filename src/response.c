@@ -8,6 +8,8 @@
 #include "../include/response.h"
 #include "../include/utils.h"
 
+
+
 void serve_file(int sock, char *filename, char *fileType)
 {
     FILE *file;
@@ -16,12 +18,10 @@ void serve_file(int sock, char *filename, char *fileType)
     char filepath[300];
     char file_name[200];
     char file_type[200];
-    // char dir[] = "www/";
 
     strcpy(file_name, filename);
     strcpy(filepath, SERVER_ROOT);
     strcat(filepath, file_name);
-
     strcpy(file_type, fileType);
 
     file = fopen(filepath, "r");
