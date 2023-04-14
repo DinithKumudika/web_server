@@ -19,7 +19,6 @@ typedef struct Request
 Methods get_request_method(char *method);
 float get_http_version(char *http_version);
 char *get_request_file(char uri[300]);
-char *get_mime_type(char filename[300], mime_type mimeTypes[]);
 
 Request request_init(char *request_buffer);
 void handle_http_request(Request request);
