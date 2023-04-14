@@ -9,9 +9,9 @@
 
 typedef struct Request 
 {
-     int type;
-     char *file;
-     char *fileType;
+     int method;
+     char *uri;
+     float httpVersion;
 } Request;
 
 typedef struct mime_type {
@@ -63,6 +63,6 @@ int get_request_method(char method[10]);
 char *get_request_file(char uri[300]);
 char *get_mime_type(char filename[300], mime_type mimeTypes[]);
 
-Request handle_http_request(char *buffer);
+Request request_init(char *request_buffer);
 
 

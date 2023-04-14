@@ -106,7 +106,7 @@ void handle_connection(int *ptr_client_socket)
      printf("Bytes received : %d\n", bytes_received);
      printf("buffer : %s\n", buffer);
 
-     Request request = handle_http_request(client_socket, buffer);
+     Request request = request_init(buffer);
 
      printf("method : %d\n", request.type);
      printf("requested file : %s\n", request.file);

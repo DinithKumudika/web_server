@@ -10,41 +10,36 @@
 
 
 
-void serve_file(int sock, char *filename, char *fileType)
+void serve_file(int sock, char *file, char *mime_type)
 {
-    FILE *file;
+    FILE *ptr_file;
     int bytes;
     char header[400];
     char filepath[300];
     char file_name[200];
     char file_type[200];
 
-    strcpy(file_name, filename);
+    strcpy(file_name, file);
     strcpy(filepath, SERVER_ROOT);
     strcat(filepath, file_name);
-    strcpy(file_type, fileType);
+    strcpy(file_type, mime_type);
 
-    file = fopen(filepath, "r");
-
-    if (strcmp(file_type, "invalid") == 0)
-    {
-        sprintf(header, "HTTP/1.1 415 Unsupported Media Type\r\n\r\n");
-    }
+    ptr_file = fopen(filepath, "r");
 
     // if file not found send 404 page as response and set http response status to 404 Not Found
-    if (file == NULL || strcmp(file_name, "404.html") == 0)
+    if (strcmp(file_type, "invalid") == 0 || ptr_file == NULL)
     {
         perror("File not found\n");
-        file = fopen("www/404.html", "r");
-        sprintf(header, "HTTP/1.1 404 Not Found\nContent-Type: %s; charset=utf-8\r\n\r\n", file_type);
+        ptr_file  = fopen("www/404.html", "r");
+        sprintf(header, HEADER_404);
     }
     else
     {
         sprintf(header, "HTTP/1.1 200 OK\nContent-Type: %s; charset=utf-8\r\n\r\n", file_type);
     }
     
-    get_file_size(file);
-    fseek(file, 0L, SEEK_SET);
+    get_file_size(ptr_file);
+    fseek(ptr_file, 0L, SEEK_SET);
     char *ptr = malloc(file_size + 1);
 
     // read file
