@@ -8,6 +8,7 @@ simple web server with multi-threading written in C language for 2nd year of my 
 ├───include
 ├───libs
 │   ├───dictionary
+│   ├───hashTable
 │   ├───queue
 │   └───threadpool
 ├───src
