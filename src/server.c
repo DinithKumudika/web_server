@@ -91,6 +91,7 @@ void *handle_socket_thread(void *arg)
 // handle a http connection from a client
 void handle_connection(int *ptr_client_socket) 
 {
+     char buffer[BUFFER_SIZE];
      int client_socket = *(ptr_client_socket);
      free(ptr_client_socket);
      memset(buffer, 0, BUFFER_SIZE);
@@ -106,13 +107,16 @@ void handle_connection(int *ptr_client_socket)
      printf("Bytes received : %d\n", bytes_received);
      printf("buffer : %s\n", buffer);
 
+     // handle request
      Request request = request_init(buffer);
 
-     printf("method : %d\n", request.type);
-     printf("requested file : %s\n", request.file);
-     printf("requested file type: %s\n", request.fileType);
+     printf("method : %d\n", request.method);
+     printf("uri : %s\n", request.uri);
+     printf("HTTP version: %.2f\n", request.httpVersion);
 
-     serve_file(client_socket, request.file, request.fileType);
+     handle_http_request(request);
+
+     send_response(client_socket, request.file, request.fileType);
 
      close(client_socket);
 }
@@ -120,7 +124,6 @@ void handle_connection(int *ptr_client_socket)
 // launch the server and accept incoming connections and read from and write to connections
 void launch(Server *server)
 {
-     char buffer[BUFFER_SIZE];
      int sock;
      socklen_t addr_len = sizeof(server->address);
 

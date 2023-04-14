@@ -7,6 +7,8 @@
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
 
+#include "constants.h"
+
 typedef struct Request 
 {
      int method;
@@ -14,55 +16,12 @@ typedef struct Request
      float httpVersion;
 } Request;
 
-typedef struct mime_type {
-     char *ext;
-     char *type;
-} mime_type;
-
-mime_type mimeTypes[] = {
-     {
-          "htm", 
-          "text/html"
-     },
-     {
-          "html", 
-          "text/html"
-     },
-     {
-          "css", 
-          "text/css"
-     },
-     {
-          "jpg", 
-          "image/jpeg"
-     },
-     {
-          "jpeg", 
-          "image/jpeg"
-     },
-     {
-          "png", 
-          "image/png"
-     },
-     {
-          "gif", 
-          "image/gif"
-     },
-     {
-          "txt", 
-          "text/plain"
-     },
-     {
-          "js", 
-          "application/x-javascript"
-     }
-};
-
-
-int get_request_method(char method[10]);
+Methods get_request_method(char *method);
+float get_http_version(char *http_version);
 char *get_request_file(char uri[300]);
 char *get_mime_type(char filename[300], mime_type mimeTypes[]);
 
 Request request_init(char *request_buffer);
+void handle_http_request(Request request);
 
 
