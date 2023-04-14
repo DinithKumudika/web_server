@@ -26,74 +26,42 @@ int get_request_method(char method[10])
      }
 }
 
-char *get_request_file(char uri[300], char filename[300])
+char *get_request_file(char uri[300])
 {
-     
      if(strcmp(uri, "/") == 0)
      {
-          strcpy(filename, "index.html");
-     }
-     else if(strcmp(uri, "/about.html") == 0)
-     {
-          strcpy(filename, "about.html");
-     }
-     else if(strcmp(uri, "/contact.html") == 0)
-     {
-          strcpy(filename, "contact.html");
-     }
-     else if(strcmp(uri, "/flower.jpg") == 0)
-     {
-          strcpy(filename, "rose.jpg");
-     }
-     else if(strcmp(uri, "/sample.txt") == 0)
-     {
-          strcpy(filename, "sample.txt");
-     }
-     else if(strcmp(uri, "/pikachu.gif") == 0)
-     {
-          strcpy(filename, "pikachu.gif");
-     }
-     else if(strcmp(uri, "/styles.css") == 0)
-     {
-          strcpy(filename, "styles.css");
+          return "index.html";
      }
      else
      {
-          strcpy(filename, "404.html");
+          char *filename = strchr(uri, '/');
+          ++filename;
+          return filename;
      }
-
-     return filename;
 }
 
-char *get_file_type(char *filename, char fileType[100])
+// get mime type of the file
+char *get_mime_type(char filename[300], mime_type mimeTypes[])
 {
-     
-     if(strstr(filename, ".html") != NULL)
+     char *ext = strchr(filename, '.');
+     if(ext == NULL)
      {
-          strcpy(fileType, "text/html");
-     }
-     else if(strstr(filename, ".jpeg") != NULL || strstr(filename, ".jpg") != NULL)
-     {
-          strcpy(fileType, "image/jpg");
-     }
-     else if(strstr(filename, ".txt") != NULL)
-     {
-          strcpy(fileType, "text/plain");
-     }
-     else if(strstr(filename, ".gif") != NULL)
-     {
-          strcpy(fileType, "image/gif");
-     }
-     else if(strstr(filename, ".css") != NULL)
-     {
-          strcpy(fileType, "text/css");
-     }
-     else 
-     {
-          strcpy(fileType, "invalid");
+          return "invalid";
      }
 
-     return fileType;
+     ++ext;
+
+     int len =  sizeof(mimeTypes) / sizeof(mimeTypes[0]);
+
+     for(int i = 0; i< len; i++)
+     {
+          if(strcmp(mimeTypes[i].ext, ext) == 0)
+          {
+               return mimeTypes[i].type;
+          }
+     }
+
+     return "invalid";
 }
 
 Request handle_http_request(char *buffer)
@@ -101,8 +69,6 @@ Request handle_http_request(char *buffer)
      char request_method[10];
      char request_uri[300];
      char request_protocol[128];
-     char filename[300];
-     char fileType[100];
 
      Request req;
 
@@ -111,8 +77,8 @@ Request handle_http_request(char *buffer)
      printf("uri : %s\n", request_uri);
 
      req.type = get_request_method(request_method);
-     req.file = get_request_file(request_uri, filename);
-     req.fileType = get_file_type(req.file, fileType);
+     req.file = get_request_file(request_uri);
+     req.fileType = get_mime_type(req.file, mime_type mimeTypes[]);
 
      return req;
 }

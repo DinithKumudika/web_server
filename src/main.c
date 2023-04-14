@@ -10,8 +10,9 @@
 pthread_t threads[THREAD_POOL_SIZE];
 
 // thread safety
+//initialize mutex
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t condition = PTHREAD_COND_INITIALIZER;
+pthread_cond_t cond_var = PTHREAD_COND_INITIALIZER;
 
 int main(int argc, char *argv[])
 {

@@ -76,7 +76,7 @@ void *handle_socket_thread(void *arg)
      while (1)
      {
           pthread_mutex_lock(&mutex);
-          pthread_cond_wait(&condition, &mutex);
+          pthread_cond_wait(&cond_var, &mutex);
           int *ptr_client_socket = dequeue();
           pthread_mutex_unlock(&mutex);
 
@@ -158,9 +158,11 @@ void launch(Server *server)
           pthread_mutex_lock(&mutex);
           // add client socket of current connection to the queue so available threads can use them
           enqueue(&queue, ptr_sock);
-          pthread_cond_signal(&condition);
+          pthread_cond_signal(&cond_var);
           pthread_mutex_unlock(&mutex);
      }
+
+     pthread_exit(NULL);
 
      // shutdown socket connection
      shutdown(server->socket, SD_BOTH);
