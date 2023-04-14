@@ -9,29 +9,41 @@
 #include "../include/request.h"
 #include "../include/utils.h"
 
-int get_request_method(char method[10])
+Methods get_request_method(char *method)
 {
+     char *method = strtok(req_line, " ");
 
      if(strcmp(method, "GET") == 0)
      {
-          return REQUEST_METHOD_GET;
+          return GET;
+     }
+     else if(strcmp(method, "HEAD") == 0)
+     {
+          return HEAD;
      }
      else if(strcmp(method, "POST") == 0)
      {
-          return REQUEST_METHOD_POST;
-     }
-     else if(strcmp(method, "DELETE") == 0)
-     {
-          return REQUEST_METHOD_DELETE;
+          return POST;
      }
      else if(strcmp(method, "PUT") == 0)
      {
-          return REQUEST_METHOD_PUT;
+          return PUT;
      }
-     else
+     else if(strcmp(method, "PATCH") == 0)
      {
-          return REQUEST_METHOD_UNDEFINED; 
+          return PATCH; 
      }
+     else if(strcmp(method, "DELETE") == 0)
+     {
+          return DELETE;
+     }
+}
+
+float get_http_version(char *http_version)
+{
+     char *version = strtok(http_version, "/");
+     version = strtok(NULL, "/");
+     return (float)atof(version);
 }
 
 char *get_request_file(char uri[300])
@@ -48,33 +60,9 @@ char *get_request_file(char uri[300])
      }
 }
 
-// get mime type of the file
-char *get_mime_type(char filename[300], mime_type mimeTypes[])
+void handle_http_request(Request request)
 {
-     char *ext = strchr(filename, '.');
-     if(ext == NULL)
-     {
-          return "invalid";
-     }
-
-     ++ext;
-
-     int len =  sizeof(mimeTypes) / sizeof(mimeTypes[0]);
-
-     for(int i = 0; i< len; i++)
-     {
-          if(strcmp(mimeTypes[i].ext, ext) == 0)
-          {
-               return mimeTypes[i].type;
-          }
-     }
-
-     return "invalid";
-}
-
-void handle_http_request()
-{
-
+     
 }
 
 Request request_init(char *request_buffer)
@@ -83,25 +71,29 @@ Request request_init(char *request_buffer)
      char uri[300];
      char http_version[128];
 
-     Request req;
-
      for(int i = 0; i < strlen(request_buffer) - 1; i++)
      {
-          
+          if (request_buffer[i] == '\n' && request_buffer[i+1] == '\n')
+          {
+               request_buffer[i+1] = '/';
+          }
      }
 
-     // get request line from request buffer
+     // extract request line from request buffer
      char *request_line = strtok(request_buffer, "\n");
+     // extract headers from request buffer
+     char *request_headers = strtok(NULL, "/");
+     // extract body from request buffer
+     char *request_body = strtok(NULL,"\n");
+
      // extract http method, uri and http version from request line
      sscanf(request_line, "%s %s %s", method, uri, http_version);
 
-     printf("method : %s\n", method);
-     printf("uri : %s\n", uri);
-     printf("http version : %s\n", http_version);
+     Request request;
 
-     req.httpMethod = get_request_method(method);
-     req.uri = uri;
-     req.httpVersion = http_version;
+     request.method = get_request_method(method);
+     request.uri = uri;
+     request.httpVersion = get_http_version(http_version);
 
      return req;
 }

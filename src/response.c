@@ -8,9 +8,33 @@
 #include "../include/response.h"
 #include "../include/utils.h"
 
+// get mime type of the file
+char *get_mime_type(char filename[300], mime_type mimeTypes[])
+{
+    char *ext = strchr(filename, '.');
+    if (ext == NULL)
+    {
+        return "invalid";
+    }
+
+    ++ext;
+
+    int len = sizeof(mimeTypes) / sizeof(mimeTypes[0]);
+
+    for (int i = 0; i < len; i++)
+    {
+        if (strcmp(mimeTypes[i].ext, ext) == 0)
+        {
+            return mimeTypes[i].type;
+        }
+    }
+
+    return "invalid";
+}
 
 
-void serve_file(int sock, char *file, char *mime_type)
+// send response to the client
+void send_response(int sock, char *file, char *mime_type)
 {
     FILE *ptr_file;
     int bytes;
@@ -30,14 +54,14 @@ void serve_file(int sock, char *file, char *mime_type)
     if (strcmp(file_type, "invalid") == 0 || ptr_file == NULL)
     {
         perror("File not found\n");
-        ptr_file  = fopen("www/404.html", "r");
+        ptr_file = fopen("www/404.html", "r");
         sprintf(header, HEADER_404);
     }
     else
     {
         sprintf(header, "HTTP/1.1 200 OK\nContent-Type: %s; charset=utf-8\r\n\r\n", file_type);
     }
-    
+
     get_file_size(ptr_file);
     fseek(ptr_file, 0L, SEEK_SET);
     char *ptr = malloc(file_size + 1);

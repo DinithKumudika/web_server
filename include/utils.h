@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 // convert string to lowercase
 char *str_to_lower(char *str)
@@ -17,4 +19,10 @@ long int get_file_size(FILE *fptr)
      fseek(fptr, 0L, SEEK_END);
      long int size = ftell(fptr);
      return size;
+}
+
+char *get_substring(char pos, int len)
+{
+     char *substr = ();
+
 }

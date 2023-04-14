@@ -5,14 +5,14 @@
 #define REQUEST_SIZE 4096
 #define THREAD_POOL_SIZE 30
 
-enum http_methods {
+typedef enum Methods{
      GET,
      HEAD,
      POST,
      PUT,
      PATCH,
-     DELETE
-};
+     DELETE,
+} Methods;
 
 #define HEADER_200 "HTTP/1.1 200 OK\nContent-Type: text/html; charset=utf-8\r\n\r\n"
 #define HEADER_400 "HTTP/1.1 404 Bad Request\nContent-Type: text/html; charset=utf-8\r\n\r\n"
