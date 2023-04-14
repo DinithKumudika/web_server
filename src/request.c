@@ -20,6 +20,14 @@ int get_request_method(char method[10])
      {
           return REQUEST_METHOD_POST;
      }
+     else if(strcmp(method, "DELETE") == 0)
+     {
+          return REQUEST_METHOD_DELETE;
+     }
+     else if(strcmp(method, "PUT") == 0)
+     {
+          return REQUEST_METHOD_PUT;
+     }
      else
      {
           return REQUEST_METHOD_UNDEFINED; 
@@ -64,21 +72,36 @@ char *get_mime_type(char filename[300], mime_type mimeTypes[])
      return "invalid";
 }
 
-Request handle_http_request(char *buffer)
+void handle_http_request()
 {
-     char request_method[10];
-     char request_uri[300];
-     char request_protocol[128];
+
+}
+
+Request request_init(char *request_buffer)
+{
+     char method[10];
+     char uri[300];
+     char http_version[128];
 
      Request req;
 
-     sscanf(buffer, "%s %s %s", request_method, request_uri, request_protocol);
+     for(int i = 0; i < strlen(request_buffer) - 1; i++)
+     {
+          
+     }
 
-     printf("uri : %s\n", request_uri);
+     // get request line from request buffer
+     char *request_line = strtok(request_buffer, "\n");
+     // extract http method, uri and http version from request line
+     sscanf(request_line, "%s %s %s", method, uri, http_version);
 
-     req.type = get_request_method(request_method);
-     req.file = get_request_file(request_uri);
-     req.fileType = get_mime_type(req.file, mime_type mimeTypes[]);
+     printf("method : %s\n", method);
+     printf("uri : %s\n", uri);
+     printf("http version : %s\n", http_version);
+
+     req.httpMethod = get_request_method(method);
+     req.uri = uri;
+     req.httpVersion = http_version;
 
      return req;
 }

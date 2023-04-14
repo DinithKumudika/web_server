@@ -7,6 +7,7 @@ simple web server with multi-threading written in C language for 2nd year of my 
 ├───bin
 ├───include
 ├───libs
+│   ├───dictionary
 │   ├───queue
 │   └───threadpool
 ├───src
@@ -19,7 +20,7 @@ simple web server with multi-threading written in C language for 2nd year of my 
 1. clone the repository (host OS must be a linux distro. If your pc is not running a linux OS you can use a virtualBox)
 2. cd web_server
 3. compile the program using `make` command
-4. run web server using `bin/server` PORT command. PORT is the port which you want to run the server (ex-:8080)
+4. run web server using `bin/server -p <port>` command. PORT is the port which you want to run the server (ex-:8080)
 5. open a web browser and go to http://localhost:PORT
 
 ## Compile
@@ -28,7 +29,7 @@ simple web server with multi-threading written in C language for 2nd year of my 
 
 ## Usage
 
-`bin/server` PORT
+`bin/server -p <port>` 
 
 ## Reference 
 https://bruinsslot.jp/post/simple-http-webserver-in-c/

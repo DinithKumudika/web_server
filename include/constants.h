@@ -5,10 +5,15 @@
 #define REQUEST_SIZE 4096
 #define THREAD_POOL_SIZE 30
 
-#define REQUEST_METHOD_UNDEFINED 0
-#define REQUEST_METHOD_GET 1
-#define REQUEST_METHOD_POST 2
+enum http_methods {
+     GET,
+     HEAD,
+     POST,
+     PUT,
+     PATCH,
+     DELETE
+};
 
-#define HEADER_200 "HTTP/1.0 200 OK\nServer: CS241Serv v0.1\nContent-Type: text/html\n\n"
-#define HEADER_400 "HTTP/1.0 400 Bad Request\nServer: CS241Serv v0.1\nContent-Type: text/html\n\n"
-#define HEADER_404 "HTTP/1.0 404 Not Found\nServer: CS241Serv v0.1\nContent-Type: text/html\n\n"
+#define HEADER_200 "HTTP/1.1 200 OK\nContent-Type: text/html; charset=utf-8\r\n\r\n"
+#define HEADER_400 "HTTP/1.1 404 Bad Request\nContent-Type: text/html; charset=utf-8\r\n\r\n"
+#define HEADER_404 "HTTP/1.1 404 Not Found\nContent-Type: text/html; charset=utf-8\r\n\r\n"
