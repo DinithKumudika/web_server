@@ -71,16 +71,20 @@ Request request_init(char *request_buffer)
      char uri[300];
      char http_version[128];
 
-     for(int i = 0; i < strlen(request_buffer) - 1; i++)
+     // convert string literal to string because string literals are immutable
+     char request_string[strlen(request_buffer)];
+     strcpy(request_string, request_buffer);
+
+     for(int i = 0; i < strlen(request_string) - 2; i++)
      {
-          if (request_buffer[i] == '\n' && request_buffer[i+1] == '\n')
+          if (request_string[i] == '\n' && request_string[i+1] == '\n')
           {
-               request_buffer[i+1] = '/';
+               request_string[i+1] = '/';
           }
      }
 
      // extract request line from request buffer
-     char *request_line = strtok(request_buffer, "\n");
+     char *request_line = strtok(request_string, "\n");
      // extract headers from request buffer
      char *request_headers = strtok(NULL, "/");
      // extract body from request buffer
