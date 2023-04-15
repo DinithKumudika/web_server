@@ -1,0 +1,1 @@
+unsigned int hash (char *value, int hashmap_size);
